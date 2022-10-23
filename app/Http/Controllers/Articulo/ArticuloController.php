@@ -86,13 +86,22 @@ class ArticuloController extends Controller
     {
         $data = $request->all();
 
-        DB::select('CALL updateArticulo(?,?,?,?,?,?,?)',[
+        if($data['descontinuado'] == 1){
+            $fecha = date('Y-m-d');
+        }else{
+            $data['descontinuado'] = 0;
+            $fecha = "1900-01-01";
+        }
+
+        DB::select('CALL updateArticulo(?,?,?,?,?,?,?,?,?)',[
             $sku,$data['articulo'],$data['marca'],$data['modelo'],$data['stock'],
-            $data['cantidad'],$data['familia']
+            $data['cantidad'],$data['familia'], $data['descontinuado'], $fecha
         ]);
+
+        $articulo = DB::select('CALL getArticulos(?)',[$sku]);
         return response()->json([
             'ok'=> true,
-            'msg' => 'Articulo actualizado'
+            'articulo' => $articulo
         ]);
     }
 
